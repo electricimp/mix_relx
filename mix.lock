@@ -1,0 +1,4 @@
+%{
+  "bbmustache": {:hex, :bbmustache, "1.12.2", "0cabdce0db9fe6d3318131174b9f2b351328a4c0afbeb3e6e99bb0e02e9b621d", [:rebar3], [], "hexpm", "688b33a4d5cc2d51f575adf0b3683fc40a38314a2f150906edcfc77f5b577b3b"},
+  "relx": {:hex, :relx, "4.10.0", "9301505eb1cea34419f1064adb7d162426b6cfd33b844af1cf831288c18f1f68", [:rebar3], [{:bbmustache, "~> 1.10", [hex: :bbmustache, repo: "hexpm", optional: false]}], "hexpm", "2e570f7131f30d4c9d6e327543de9e3e6ae25e2714de4d3656907fd912fb7499"},
+}
