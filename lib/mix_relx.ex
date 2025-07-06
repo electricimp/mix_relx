@@ -35,7 +35,7 @@ defmodule Mix.Tasks.Relx do
     content = File.read!(source)
 
     # Get a list of the ${variables} that need replacing.
-    vars = Regex.scan(~R/\${(.+)}/U, content)
+    vars = Regex.scan(~r/\${(.+)}/U, content)
 
     f = fn [p, v], c ->
       case getenv.(v) do
