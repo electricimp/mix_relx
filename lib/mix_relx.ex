@@ -7,51 +7,35 @@ defmodule Mix.Tasks.Relx do
   def run(_args) do
     Mix.Task.run("loadpaths")
 
+    config = Mix.Project.config()
+    name = config[:app]
+    vsn = config[:version]
+
+    # expand the config_src to substitute the version number
     if File.exists?("relx.config.src") do
       Mix.shell().print_app()
 
-      config = Mix.Project.config()
-      vsn = config[:version]
-
-      assigns = %{"RELEASE_VERSION" => vsn}
-      envsubst("relx.config.src", "relx.config", fn key -> Map.get(assigns, key, nil) end)
+      substitutions = %{"RELEASE_VERSION" => vsn}
+      envsubst("relx.config.src", "relx.config", fn key -> Map.get(substitutions, key, nil) end)
     end
 
     if File.exists?("relx.config") do
       Mix.shell().print_app()
 
-      # Assumes that relx is in PATH
-      Mix.Tasks.Cmd.run(["relx" | relx_args(Mix.env())])
+      {:ok, relx_config} = :file.consult("relx.config")
+      output_dir = Path.join(Mix.Project.build_path(), "rel")
+
+      {:ok, _} = :relx.build_release(%{name: name, vsn: to_charlist(vsn)}, [output_dir: to_charlist(output_dir)] ++ relx_config)
     end
 
     :ok
   end
 
-  defp relx_args(:dev) do
-    ["--dev-mode" | default_relx_args()]
-  end
-
-  defp relx_args(_), do: default_relx_args()
-
-  defp default_relx_args do
-    root_dir = Mix.Project.build_path()
-    output_dir = Path.join(Mix.Project.build_path(), "rel")
-
-    [
-      "--config",
-      "relx.config",
-      "--root",
-      root_dir,
-      "--output-dir",
-      output_dir
-    ]
-  end
-
-  defp envsubst(source, destination, getenv) do
+    defp envsubst(source, destination, getenv) do
     content = File.read!(source)
 
     # Get a list of the ${variables} that need replacing.
-    vars = Regex.scan(~R/\${(.+)}/U, content)
+    vars = Regex.scan(~r/\${(.+)}/U, content)
 
     f = fn [p, v], c ->
       case getenv.(v) do
